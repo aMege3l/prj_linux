@@ -12,9 +12,29 @@ from metrics_portfolio import (
     compute_portfolio_metrics,
     correlation_matrix,
 )
+from streamlit_autorefresh import st_autorefresh
 
+@st.cache_data(ttl=300)
+def load_prices(
+    tickers,
+    start_date,
+    end_date,
+    interval,
+):
+    """
+    Load and cache multi-asset price data for 5 minutes to avoid
+    unnecessary API calls during auto-refresh.
+    """
+    return build_price_panel(
+        tickers=tickers,
+        start_date=start_date,
+        end_date=end_date,
+        interval=interval,
+        fetcher=fetch_ohlc_yahoo,
+    )
 
 st.set_page_config(page_title="Quant B – Multi-Asset Portfolio", layout="wide")
+st_autorefresh(interval=5 * 60 * 1000, key="auto_refresh")
 st.title("Quant B – Multi-Asset Portfolio")
 
 st.markdown("""
@@ -62,7 +82,14 @@ rebalance = st.sidebar.selectbox(
 
 initial_capital = st.sidebar.number_input("Initial capital", 100.0, 1_000_000.0, 10000.0)
 
-run = st.sidebar.button("Run Portfolio Backtest")
+if "run_backtest" not in st.session_state:
+    st.session_state.run_backtest = False
+
+if st.sidebar.button("Run Portfolio Backtest"):
+    st.session_state.run_backtest = True
+
+run = st.session_state.run_backtest
+
 
 
 def _clean_tickers(s: str) -> list[str]:
@@ -88,12 +115,11 @@ if run:
 
         st.info("Fetching data from Yahoo Finance…")
 
-        prices = build_price_panel(
+        prices = load_prices(
             tickers=tickers,
             start_date=start_date.isoformat(),
             end_date=end_date.isoformat(),
             interval=interval,
-            fetcher=fetch_ohlc_yahoo,
         )
 
         if prices.empty:
@@ -116,6 +142,36 @@ if run:
         )
 
         metrics = compute_portfolio_metrics(equity)
+
+        # --- Current values (Condition 3) ---
+        st.subheader("Current Values")
+
+        cols = st.columns(len(prices.columns) + 1)
+
+        # Portfolio
+        cols[0].metric(
+            label="Portfolio Value",
+            value=f"{equity.iloc[-1]:,.2f}",
+        )
+
+        # Assets (latest close) + change if available
+        for i, t in enumerate(prices.columns, start=1):
+            last_price = float(prices[t].iloc[-1])
+            if len(prices) >= 2:
+                prev_price = float(prices[t].iloc[-2])
+                delta = last_price - prev_price
+                delta_pct = (delta / prev_price) if prev_price != 0 else 0.0
+                cols[i].metric(
+                    label=f"{t} Last Price",
+                    value=f"{last_price:,.2f}",
+                    delta=f"{delta:,.2f} ({delta_pct:.2%})",
+                )
+            else:
+                cols[i].metric(
+                    label=f"{t} Last Price",
+                    value=f"{last_price:,.2f}",
+                )
+
 
         # --- CHART: assets + portfolio equity (normalized) ---
         st.subheader("Assets vs Portfolio (normalized)")

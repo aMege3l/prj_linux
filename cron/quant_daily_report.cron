@@ -1,0 +1,4 @@
+# Quant Project – Daily market report
+# Runs every day at 20:00 (server local time)
+
+0 20 * * * /home/ambroise/prj_linux/.venv/bin/python /home/ambroise/prj_linux/scripts/daily_report.py >> /home/ambroise/prj_linux/logs/daily_report.log 2>&1

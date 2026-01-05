@@ -12,7 +12,7 @@ def build_price_panel(
     end_date: str,
     interval: str,
     fetcher: Callable[..., pd.DataFrame],
-) -> pd.DataFrame:
+):
     """
     Download and align close prices for multiple assets.
 
@@ -54,6 +54,10 @@ def build_price_panel(
         return pd.DataFrame()
 
     prices = pd.concat(series_list, axis=1).sort_index()
+    # Intraday timestamps are not perfectly aligned across assets
+    if interval != "1d":
+        prices = prices.ffill()
+
     prices = prices.dropna(how="any")  # common intersection
     return prices
 
@@ -62,7 +66,7 @@ def parse_weights(
     weights_raw: str,
     tickers: list[str],
     long_only: bool = True,
-) -> Dict[str, float]:
+):
     """
     Parse custom weights from a string like: "AAPL:0.4,MSFT:0.4,GLD:0.2".
 
@@ -100,7 +104,7 @@ def parse_weights(
     return {k: v / s for k, v in w.items()}
 
 
-def _rebalance_dates(index: pd.DatetimeIndex, rebalance: str) -> pd.DatetimeIndex:
+def _rebalance_dates(index: pd.DatetimeIndex, rebalance: str):
     """
     Internal helper: compute rebalancing timestamps from index.
     """
@@ -122,7 +126,7 @@ def simulate_portfolio_rebalanced(
     weights: Dict[str, float],
     initial_capital: float = 10_000.0,
     rebalance: str = "Weekly",
-) -> Tuple[pd.Series, pd.DataFrame]:
+):
     """
     Long-only multi-asset portfolio simulation with optional rebalancing.
 

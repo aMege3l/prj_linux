@@ -6,7 +6,7 @@ def compute_portfolio_metrics(
     equity_curve: pd.Series,
     risk_free_rate: float = 0.0,
     periods_per_year: int = 252,
-) -> dict:
+):
     """
     Compute basic performance metrics for a portfolio equity curve.
 
@@ -47,7 +47,7 @@ def compute_portfolio_metrics(
     }
 
 
-def correlation_matrix(prices: pd.DataFrame) -> pd.DataFrame:
+def correlation_matrix(prices: pd.DataFrame):
     if prices is None or prices.empty:
         return pd.DataFrame()
 

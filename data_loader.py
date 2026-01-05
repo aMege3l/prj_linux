@@ -7,7 +7,7 @@ def fetch_ohlc_yahoo(
     start_date: str,
     end_date: str,
     interval: str = "1d",
-) -> pd.DataFrame:
+):
     """
     Fetch OHLCV data from Yahoo Finance for a single asset.
     Parameters
