@@ -1,6 +1,12 @@
 import datetime as dt
 import pandas as pd
 import streamlit as st
+import os
+
+# Force SSL cert path (Windows + curl issue with accents in user folder)
+os.environ["SSL_CERT_FILE"] = r"C:\certs\cacert.pem"
+os.environ["REQUESTS_CA_BUNDLE"] = r"C:\certs\cacert.pem"
+os.environ["CURL_CA_BUNDLE"] = r"C:\certs\cacert.pem"
 
 from data_loader import fetch_ohlc_yahoo
 from strategies import buy_and_hold, moving_average_crossover
@@ -30,12 +36,27 @@ default_start = today - dt.timedelta(days=365)
 
 start_date = st.sidebar.date_input("Start date", value=default_start)
 end_date = st.sidebar.date_input("End date", value=today)
+today = dt.date.today()
+if end_date > today:
+    st.sidebar.warning("End date is in the future. Adjusted to today.")
+    end_date = today
+if start_date >= end_date:
+    st.sidebar.error("Start date must be before end date.")
+    st.stop()
 
-interval = st.sidebar.selectbox(
+interval_label = st.sidebar.selectbox(
     "Interval (periodicity)",
-    ["1d", "1h", "30m", "15m", "5m", "1m"],
+    ["1 Day", "1 Week", "1 Month"],
     index=0
 )
+
+interval_map = {
+    "1 Day": "1d",
+    "1 Week": "1wk",
+    "1 Month": "1mo"
+}
+
+interval = interval_map[interval_label]
 
 strategy_choice = st.sidebar.selectbox(
     "Strategy",
@@ -53,6 +74,9 @@ run = st.sidebar.button("Run Backtest")
 if run:
     try:
         st.info("Fetching data from Yahoo Finance…")
+        if interval == "1mo" and (end_date - start_date).days < 90:
+            st.warning("Monthly interval needs a longer date range (>= ~3 months).")
+            st.stop()
 
         df = fetch_ohlc_yahoo(
             symbol=symbol,
@@ -81,7 +105,17 @@ if run:
         if strategy_choice == "Buy & Hold":
             equity = buy_and_hold(close, initial_capital)
             equity = equity.loc[close.index]  # align index
-            metrics_dict = compute_performance_metrics(equity)
+            periods_map = {
+                "1d": 252,
+                "1wk": 52,
+                "1mo": 12,
+            }
+            periods_per_year = periods_map.get(interval, 252)
+
+            metrics_dict = compute_performance_metrics(
+                equity,
+                periods_per_year=int(periods_per_year)
+            )
 
             st.subheader("Price + Strategy Performance")
             combined = pd.DataFrame(
