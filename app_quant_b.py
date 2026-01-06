@@ -14,6 +14,17 @@ from metrics_portfolio import (
 )
 from streamlit_autorefresh import st_autorefresh
 
+def _clean_tickers(s: str) -> list[str]:
+    tickers = [t.strip() for t in s.split(",") if t.strip()]
+    # remove duplicates while preserving order
+    seen = set()
+    out = []
+    for t in tickers:
+        if t not in seen:
+            out.append(t)
+            seen.add(t)
+    return out
+
 @st.cache_data(ttl=300)
 def load_prices(
     tickers,
@@ -62,17 +73,26 @@ end_date = st.sidebar.date_input("End date", value=today)
 
 interval = st.sidebar.selectbox(
     "Interval (periodicity)",
-    ["1d", "1h", "30m", "15m", "5m", "1m"],
+    ["1d", "1h"],
     index=0
 )
 
 weights_mode = st.sidebar.selectbox("Weights mode", ["Equal weight", "Custom weights"])
 
-weights_raw = st.sidebar.text_input(
-    "Custom weights (if selected)",
-    value="AAPL:0.4,MSFT:0.4,GLD:0.2",
-    help="Format: TICKER:weight, e.g., AAPL:0.4,MSFT:0.4,GLD:0.2"
-)
+custom_weights = {}
+
+if weights_mode == "Custom weights":
+    st.sidebar.markdown("### Portfolio Weights")
+
+    for t in _clean_tickers(tickers_raw):
+        custom_weights[t] = st.sidebar.slider(
+            f"{t} weight",
+            min_value=0.0,
+            max_value=1.0,
+            value=1.0 / len(_clean_tickers(tickers_raw)),
+            step=0.05,
+        )
+
 
 rebalance = st.sidebar.selectbox(
     "Rebalancing frequency",
@@ -89,19 +109,6 @@ if st.sidebar.button("Run Portfolio Backtest"):
     st.session_state.run_backtest = True
 
 run = st.session_state.run_backtest
-
-
-
-def _clean_tickers(s: str) -> list[str]:
-    tickers = [t.strip() for t in s.split(",") if t.strip()]
-    # remove duplicates while preserving order
-    seen = set()
-    out = []
-    for t in tickers:
-        if t not in seen:
-            out.append(t)
-            seen.add(t)
-    return out
 
 
 # --- MAIN ---
@@ -130,9 +137,9 @@ if run:
 
         # weights
         if weights_mode == "Equal weight":
-            weights = {t: 1.0 / len(tickers) for t in tickers}
+           weights = {t: 1.0 / len(tickers) for t in tickers}
         else:
-            weights = parse_weights(weights_raw, tickers)
+            weights = custom_weights
 
         equity, details = simulate_portfolio_rebalanced(
             prices=prices,
