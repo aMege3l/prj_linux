@@ -3,6 +3,9 @@ import pandas as pd
 import streamlit as st
 import os
 
+from streamlit_autorefresh import st_autorefresh
+st_autorefresh(interval=5 * 60 * 1000, key="refresh")
+
 # Force SSL cert path (Windows + curl issue with accents in user folder)
 os.environ["SSL_CERT_FILE"] = r"C:\certs\cacert.pem"
 os.environ["REQUESTS_CA_BUNDLE"] = r"C:\certs\cacert.pem"
