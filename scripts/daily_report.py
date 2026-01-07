@@ -45,21 +45,26 @@ def compute_daily_metrics(df: pd.DataFrame) -> dict:
     - max drawdown over lookback period
     """
     close = df["close"].dropna()
-    open_price = float(df["open"].iloc[-1])
-    close_price = float(close.iloc[-1])
+    open_series = df["open"].dropna()
+
+    if close.empty or open_series.empty:
+        return {"error": "Not enough data"}
+    
+    open_price = float(open_series.iloc[-1].item())
+    close_price = float(close.iloc[-1].item())
 
     returns = close.pct_change().dropna()
-    daily_vol = float(abs(returns.iloc[-1])) if not returns.empty else 0.0
+    daily_vol = float(abs(returns.iloc[-1].item())) if not returns.empty else 0.0
 
     running_max = close.cummax()
     drawdown = close / running_max - 1
-    max_dd = float(drawdown.min())
+    max_dd =  float(drawdown.min().item())
 
     return {
-        "open": open_price,
-        "close": close_price,
-        "daily_volatility": daily_vol,
-        "max_drawdown": max_dd,
+        "open": float(open_price),
+        "close": float(close_price),
+        "daily_volatility": float(daily_vol),
+        "max_drawdown": float(max_dd),
     }
 
 
@@ -73,7 +78,7 @@ def main() -> None:
 
     report = {
         "date": today.isoformat(),
-        "generated_at": dt.datetime.utcnow().isoformat(),
+        "generated_at": dt.datetime.now(dt.UTC).isoformat(),
         "assets": {},
     }
 
