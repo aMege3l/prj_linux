@@ -22,7 +22,7 @@ def fetch_ohlc_yahoo(
         start=start_date,
         end=end_date,
         interval=interval,
-        auto_adjust=False,  # keep raw OHLC
+        auto_adjust=False,
         progress=False,
     )
 
@@ -40,7 +40,5 @@ def fetch_ohlc_yahoo(
         }
     )
 
-    # Ensure we have a DatetimeIndex
     df.index.name = "time"
-
     return df
