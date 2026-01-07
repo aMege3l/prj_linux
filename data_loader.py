@@ -7,26 +7,16 @@ def fetch_ohlc_yahoo(
     start_date: str,
     end_date: str,
     interval: str = "1d",
-):
+) -> pd.DataFrame:
     """
     Fetch OHLCV data from Yahoo Finance for a single asset.
-    Parameters
-    ----------
-    symbol : str
-        e.g. 'AAPL', 'MSFT', 'EURUSD=X', 'GC=F', 'BTC-USD'
-    start_date : str
-        'YYYY-MM-DD'
-    end_date : str
-        'YYYY-MM-DD'
-    interval : str
-        '1d','1h','30m','15m','5m','1m'
 
-    Returns
-    -------
-    pd.DataFrame
-        Indexed by time (DatetimeIndex). Columns:
-        open, high, low, close, adj_close, volume (when available).
+    symbol      : e.g. 'AAPL', 'MSFT', 'EURUSD=X', 'GC=F', 'BTC-USD'
+    start_date  : 'YYYY-MM-DD'
+    end_date    : 'YYYY-MM-DD'
+    interval    : '1d','1h','30m','15m','5m','1m' (depends on Yahoo limits)
     """
+
     df = yf.download(
         symbol,
         start=start_date,
@@ -37,7 +27,7 @@ def fetch_ohlc_yahoo(
     )
 
     if df.empty:
-        return df
+        return df  
 
     df = df.rename(
         columns={
