@@ -46,6 +46,11 @@ interval = st.sidebar.selectbox(
     ["1d", "1h"],
     index=0
 )
+periods_map = {
+    "1d": 252,
+    "1h": 1638, #6,5h*252  
+}
+periods_per_year = periods_map[interval]
 
 strategy_choice = st.sidebar.selectbox(
     "Strategy",
@@ -63,9 +68,9 @@ run = st.sidebar.button("Run Backtest")
 if run:
     try:
         st.info("Fetching data from Yahoo Finance…")
-        if interval == "1mo" and (end_date - start_date).days < 90:
-            st.warning("Monthly interval needs a longer date range (>= ~3 months).")
-            st.stop()
+        if interval == "1h" and (end_date - start_date).days > 700:
+            st.warning("Hourly data is limited by Yahoo (~2 years). Date range adjusted.")
+            start_date = end_date - dt.timedelta(days=700)
 
         df = fetch_ohlc_yahoo(
             symbol=symbol,
@@ -94,16 +99,9 @@ if run:
         if strategy_choice == "Buy & Hold":
             equity = buy_and_hold(close, initial_capital)
             equity = equity.loc[close.index] 
-            periods_map = {
-                "1d": 252,
-                "1wk": 52,
-                "1mo": 12,
-            }
-            periods_per_year = periods_map.get(interval, 252)
-
             metrics_dict = compute_performance_metrics(
                 equity,
-                periods_per_year=int(periods_per_year)
+                periods_per_year=periods_per_year
             )
 
             st.subheader("Price + Strategy Performance")
@@ -127,7 +125,7 @@ if run:
                 initial_capital
             )
             equity = equity.loc[close.index]
-            metrics_dict = compute_performance_metrics(equity)
+            metrics_dict = compute_performance_metrics(equity,periods_per_year=periods_per_year)
 
             st.subheader("Price + Strategy Performance")
             combined = pd.DataFrame(
