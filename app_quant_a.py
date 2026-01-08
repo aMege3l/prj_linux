@@ -6,11 +6,6 @@ import os
 from streamlit_autorefresh import st_autorefresh
 st_autorefresh(interval=5 * 60 * 1000, key="refresh")
 
-# Force SSL cert path (Windows + curl issue with accents in user folder)
-os.environ["SSL_CERT_FILE"] = r"C:\certs\cacert.pem"
-os.environ["REQUESTS_CA_BUNDLE"] = r"C:\certs\cacert.pem"
-os.environ["CURL_CA_BUNDLE"] = r"C:\certs\cacert.pem"
-
 from data_loader import fetch_ohlc_yahoo
 from strategies import buy_and_hold, moving_average_crossover
 from metrics import compute_performance_metrics
