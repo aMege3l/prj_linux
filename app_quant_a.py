@@ -29,7 +29,7 @@ This dashboard lets you:
 - View interactive charts and performance metrics
 """)
 
-# --- SIDEBAR ---
+# SIDEBAR
 st.sidebar.header("Parameters")
 
 symbol = st.sidebar.text_input("Yahoo Ticker", value="AAPL")
@@ -73,7 +73,7 @@ initial_capital = st.sidebar.number_input("Initial capital", 100.0, 1_000_000.0,
 
 run = st.sidebar.button("Run Backtest")
 
-# --- MAIN ---
+# MAIN
 if run:
     try:
         st.info("Fetching data from Yahoo Finance…")
@@ -104,10 +104,10 @@ if run:
             st.error("Price series is empty after dropping NaNs.")
             st.stop()
 
-        # --- Run selected strategy ---
+        # Run selected strategy
         if strategy_choice == "Buy & Hold":
             equity = buy_and_hold(close, initial_capital)
-            equity = equity.loc[close.index]  # align index
+            equity = equity.loc[close.index] 
             periods_map = {
                 "1d": 252,
                 "1wk": 52,
@@ -140,7 +140,7 @@ if run:
                 long_window,
                 initial_capital
             )
-            equity = equity.loc[close.index]  # align index
+            equity = equity.loc[close.index]
             metrics_dict = compute_performance_metrics(equity)
 
             st.subheader("Price + Strategy Performance")
