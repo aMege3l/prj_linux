@@ -1,7 +1,6 @@
 import datetime as dt
 import pandas as pd
 import streamlit as st
-import os
 
 from streamlit_autorefresh import st_autorefresh
 st_autorefresh(interval=5 * 60 * 1000, key="refresh")
