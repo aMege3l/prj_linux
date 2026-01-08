@@ -117,7 +117,8 @@ def _rebalance_dates(index: pd.DatetimeIndex, rebalance: str):
         return index[index.to_series().dt.weekday == 0]
     if rebalance == "Monthly":
         s = index.to_series()
-        return index[s.groupby([s.dt.year, s.dt.month]).head(1).index]
+        first = s.groupby([s.dt.year, s.dt.month]).head(1).index
+    	return index[index.isin(first)]
     raise ValueError(f"Unknown rebalance frequency: {rebalance}")
 
 
