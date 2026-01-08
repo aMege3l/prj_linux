@@ -41,19 +41,11 @@ if start_date >= end_date:
     st.sidebar.error("Start date must be before end date.")
     st.stop()
 
-interval_label = st.sidebar.selectbox(
+interval = st.sidebar.selectbox(
     "Interval (periodicity)",
-    ["1 Day", "1 Week", "1 Month"],
+    ["1d", "1h"],
     index=0
 )
-
-interval_map = {
-    "1 Day": "1d",
-    "1 Week": "1wk",
-    "1 Month": "1mo"
-}
-
-interval = interval_map[interval_label]
 
 strategy_choice = st.sidebar.selectbox(
     "Strategy",
