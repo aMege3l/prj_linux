@@ -1,6 +1,6 @@
 import streamlit as st
 
-# --- Configuration ---
+# Configuration
 PUBLIC_IP = "51.21.180.222"  # Public IP of the EC2 instance
 PORT_A = 8501
 PORT_B = 8502
