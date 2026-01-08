@@ -57,7 +57,7 @@ This dashboard lets you:
 - View charts and portfolio performance metrics
 """)
 
-# --- SIDEBAR ---
+# SIDEBAR
 st.sidebar.header("Parameters")
 
 tickers_raw = st.sidebar.text_input(
@@ -111,7 +111,7 @@ if st.sidebar.button("Run Portfolio Backtest"):
 run = st.session_state.run_backtest
 
 
-# --- MAIN ---
+# MAIN
 if run:
     try:
         tickers = _clean_tickers(tickers_raw)
@@ -150,7 +150,7 @@ if run:
 
         metrics = compute_portfolio_metrics(equity)
 
-        # --- Current values (Condition 3) ---
+        # Current values (Condition 3)
         st.subheader("Current Values")
 
         cols = st.columns(len(prices.columns) + 1)
@@ -180,7 +180,7 @@ if run:
                 )
 
 
-        # --- CHART: assets + portfolio equity (normalized) ---
+        # CHART: assets + portfolio equity (normalized)
         st.subheader("Assets vs Portfolio (normalized)")
         norm_assets = prices / prices.iloc[0]
         norm_equity = equity / equity.iloc[0]
@@ -189,7 +189,7 @@ if run:
         combined["PORTFOLIO"] = norm_equity
         st.line_chart(combined)
 
-        # --- Correlation matrix ---
+        # Correlation matrix
         st.subheader("Correlation Matrix (returns)")
         corr = correlation_matrix(prices)
         if corr.empty:
@@ -197,11 +197,11 @@ if run:
         else:
             st.dataframe(corr.style.format("{:.2f}"))
 
-        # --- Metrics ---
+        # Metrics
         st.subheader("Portfolio Performance Metrics")
         st.json(metrics)
 
-        # --- Details ---
+        # Details
         with st.expander("Show portfolio details (prices, weights, values, returns)"):
             st.dataframe(details)
 
