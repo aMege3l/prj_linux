@@ -23,9 +23,19 @@ This approach is particularly well suited to deployment on a server (here in EC2
 
 Python 3.10+, a virtual environment is recommended and streamlit installed
 
-to activate the virtual environment you need to write : source .venv/bin/activate
+To activate the virtual environment you need to write : source .venv/bin/activate
 
-to launch the platform you need to write : streamlit run platform.py --server.port 8500 (you should have this URL: http://51.21.180.222:8500)
+The following Python libraries are required (see requirements.txt):
+- 'streamlit' for the web application framework
+- 'pandas' for data manipulation
+- 'numpy' for numerical computations
+- 'yfinance' for financial data retrieving from Yahoo Finance
+- 'requests' for HTTP requests handling
+- 'matplotlib' for basic plotting utilities
+- 'plotly' for interactive visualizations
+- 'streamlit-autorefresh' for automatic dashboard refresh
+
+To launch the platform you need to write : streamlit run platform.py --server.port 8500 (you should have this URL: http://51.21.180.222:8500)
 
 
 => Maintenance and contributions
