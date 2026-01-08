@@ -1,5 +1,22 @@
-.venv/
+# Environnements Python
 venv/
+.venv/
+
+# Cache Python
 __pycache__/
 *.pyc
+
+# Variables d’environnement
 .env
+
+# Logs
+logs/
+*.log
+
+# Outputs / données générées
+reports/
+*.json
+
+# Éditeurs / OS
+.DS_Store
+.vscode/
