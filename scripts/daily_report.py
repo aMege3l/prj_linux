@@ -15,10 +15,7 @@ import pandas as pd
 from data_loader import fetch_ohlc_yahoo
 
 
-# -------------------------
 # Configuration
-# -------------------------
-
 TICKERS = ["AAPL", "MSFT", "GLD"]
 INTERVAL = "1d"
 LOOKBACK_DAYS = 252  # ~1 year for drawdown calculation
@@ -29,10 +26,7 @@ REPORTS_DIR = os.path.join(BASE_DIR, "reports")
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
 
-# -------------------------
 # Helper functions
-# -------------------------
-
 def compute_daily_metrics(df: pd.DataFrame) -> dict:
     """
     Compute daily metrics from OHLC data.
@@ -68,10 +62,7 @@ def compute_daily_metrics(df: pd.DataFrame) -> dict:
     }
 
 
-# -------------------------
 # Main routine
-# -------------------------
-
 def main() -> None:
     today = dt.date.today()
     start_date = today - dt.timedelta(days=LOOKBACK_DAYS)
